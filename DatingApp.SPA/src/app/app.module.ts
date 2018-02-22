@@ -5,10 +5,10 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
-import { NavComponent } from './nav/nav.component';
-import { AuthenticationService } from './services/authentication.service';
-import { HomeComponent } from './home/home.component';
-import { RegisterComponent } from './register/register.component';
+import { NavComponent } from './view/nav/nav.component';
+import { AuthenticationService } from './services/authentication/authentication.service';
+import { HomeComponent } from './view/home/home.component';
+import { RegisterComponent } from './view/register/register.component';
 
 
 @NgModule({
