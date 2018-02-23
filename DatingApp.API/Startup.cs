@@ -53,7 +53,7 @@ namespace DatingApp.API
             {
                 app.UseDeveloperExceptionPage();
             }
-            //app.UseCors();
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials());
             app.UseAuthentication();
             app.UseMvc();
         }
