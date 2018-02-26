@@ -10,6 +10,12 @@ import { AuthenticationService } from './services/authentication/authentication.
 import { HomeComponent } from './view/home/home.component';
 import { RegisterComponent } from './view/register/register.component';
 import { AlertifyService } from './services/alertify/alertify.service';
+import { RouterModule } from '@angular/router';
+import { appRoutes } from './routes';
+import { MemberListComponent } from './view/member-list/member-list.component';
+import { ListComponent } from './view/list/list.component';
+import { MessagesComponent } from './view/messages/messages.component';
+import { AuthenticationGuard } from './guards/authentication.guard';
 
 
 @NgModule({
@@ -17,17 +23,22 @@ import { AlertifyService } from './services/alertify/alertify.service';
     AppComponent,
     NavComponent,
     HomeComponent,
-    RegisterComponent
+    RegisterComponent,
+    MemberListComponent,
+    ListComponent,
+    MessagesComponent
 ],
   imports: [
     BrowserModule,
     HttpModule,
     FormsModule,
-    BsDropdownModule.forRoot()
+    BsDropdownModule.forRoot(),
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [
     AuthenticationService,
-    AlertifyService
+    AlertifyService,
+    AuthenticationGuard
   ],
   bootstrap: [AppComponent]
 })
