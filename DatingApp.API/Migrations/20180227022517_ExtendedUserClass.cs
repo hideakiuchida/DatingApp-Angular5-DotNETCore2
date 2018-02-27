@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DatingApp.API.Migrations
 {
-    public partial class UserModel2 : Migration
+    public partial class ExtendedUserClass : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

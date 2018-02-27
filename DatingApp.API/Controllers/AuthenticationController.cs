@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
+using DatingApp.API.Repositories.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -17,9 +18,11 @@ namespace DatingApp.API.Controllers
     {
         private readonly IAuthenticationRepository _repository;
         private readonly IConfiguration _config;
+        private readonly Seed seed;
 
-        public AuthenticationController(IAuthenticationRepository repository, IConfiguration config)
+        public AuthenticationController(IAuthenticationRepository repository, IConfiguration config, Seed seed)
         {
+            this.seed = seed;
             _config = config;
             _repository = repository;
         }
@@ -27,7 +30,7 @@ namespace DatingApp.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody]UserForRegisterDTO userForRegisterDTO)
         {
-            if(!string.IsNullOrEmpty(userForRegisterDTO.Password))
+            if (!string.IsNullOrEmpty(userForRegisterDTO.Password))
                 userForRegisterDTO.Username = userForRegisterDTO.Username.ToLower();
 
             if (!ModelState.IsValid)
@@ -69,6 +72,12 @@ namespace DatingApp.API.Controllers
             var tokenString = tokenHandler.WriteToken(token);
 
             return Ok(new { tokenString });
+        }
+
+        [HttpGet("seed")]
+        public void Seed()
+        {
+            this.seed.SeedUsers();
         }
     }
 }

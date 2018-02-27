@@ -1,10 +1,11 @@
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using DatingApp.API.Data;
 using DatingApp.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DatingApp.API.Data
+namespace DatingApp.API.Repositories.Authentication
 {
     public class AutheticationRepository : IAuthenticationRepository
     {

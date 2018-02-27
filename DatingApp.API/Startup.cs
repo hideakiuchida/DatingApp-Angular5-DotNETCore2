@@ -4,8 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Helpers;
+using DatingApp.API.Repositories.Authentication;
+using DatingApp.API.Repositories.Dating;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -33,9 +36,11 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddMvc();
-            services.AddCors();
+            services.AddTransient<Seed>();           
             services.AddScoped<IAuthenticationRepository, AutheticationRepository>();
+            services.AddScoped<IDatingRepository, DatingRepository>();
+            services.AddCors();
+            services.AddAutoMapper();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(
                     options => {
@@ -48,6 +53,11 @@ namespace DatingApp.API
                         };
                     } 
                 );
+            services.AddMvc().AddJsonOptions(opt => 
+            {
+                opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
