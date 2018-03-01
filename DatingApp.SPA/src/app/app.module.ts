@@ -12,10 +12,12 @@ import { RegisterComponent } from './view/register/register.component';
 import { AlertifyService } from './services/alertify/alertify.service';
 import { RouterModule } from '@angular/router';
 import { appRoutes } from './routes';
-import { MemberListComponent } from './view/member-list/member-list.component';
+import { MemberListComponent } from './view/members/member-list/member-list.component';
 import { ListComponent } from './view/list/list.component';
 import { MessagesComponent } from './view/messages/messages.component';
 import { AuthenticationGuard } from './guards/authentication.guard';
+import { UserService } from './services/user/user.service';
+import { MemberCardComponent } from './view/members/member-card/member-card.component';
 
 
 @NgModule({
@@ -26,7 +28,8 @@ import { AuthenticationGuard } from './guards/authentication.guard';
     RegisterComponent,
     MemberListComponent,
     ListComponent,
-    MessagesComponent
+    MessagesComponent,
+    MemberCardComponent
 ],
   imports: [
     BrowserModule,
@@ -38,7 +41,8 @@ import { AuthenticationGuard } from './guards/authentication.guard';
   providers: [
     AuthenticationService,
     AlertifyService,
-    AuthenticationGuard
+    AuthenticationGuard,
+    UserService
   ],
   bootstrap: [AppComponent]
 })
