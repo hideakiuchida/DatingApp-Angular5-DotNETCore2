@@ -12,10 +12,12 @@ export class NavComponent implements OnInit {
 
     model: any = {};
     uniqueName: String;
+    userName: String;
 
     constructor(private authService: AuthenticationService, private alertify: AlertifyService, private router: Router) { }
 
     ngOnInit() {
+      this.userName = this.authService.decodedToken.unique_name;
     }
 
     login() {

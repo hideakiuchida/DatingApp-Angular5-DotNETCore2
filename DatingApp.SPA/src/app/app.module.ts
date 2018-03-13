@@ -23,6 +23,9 @@ import { AuthModule } from './view/auth/auth.module';
 import { MemberDetailComponent } from './view/members/member-detail/member-detail.component';
 import { MemberDetailResolver } from './resolvers/member-detail.resolver';
 import { MemberListResolver } from './resolvers/member-list.resolver';
+import { MemberEditComponent } from './view/members/member-edit/member-edit.component';
+import { MemberEditResolver } from './resolvers/member-edit.resolver.ts';
+import { PreventUnsavedChanges } from './guards/prevent-unsaved-changes.guard.ts';
 
 
 @NgModule({
@@ -35,7 +38,8 @@ import { MemberListResolver } from './resolvers/member-list.resolver';
     ListComponent,
     MessagesComponent,
     MemberCardComponent,
-    MemberDetailComponent
+    MemberDetailComponent,
+    MemberEditComponent
 ],
   imports: [
     BrowserModule,
@@ -53,7 +57,9 @@ import { MemberListResolver } from './resolvers/member-list.resolver';
     AuthenticationGuard,
     UserService,
     MemberDetailResolver,
-    MemberListResolver
+    MemberListResolver,
+    MemberEditResolver,
+    PreventUnsavedChanges
   ],
   bootstrap: [AppComponent]
 })
