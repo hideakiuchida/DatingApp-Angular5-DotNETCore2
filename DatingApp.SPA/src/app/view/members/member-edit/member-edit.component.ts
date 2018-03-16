@@ -33,7 +33,7 @@ export class MemberEditComponent implements OnInit {
         this.editForm.reset(this.user);
       }, error => {
         this.alertity.error(error);
-      })
-    
+      });
+
   }
 }
