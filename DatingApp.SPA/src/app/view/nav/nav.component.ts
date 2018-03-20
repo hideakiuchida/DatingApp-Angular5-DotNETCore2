@@ -9,26 +9,29 @@ import { Router } from '@angular/router';
   styleUrls: ['./nav.component.css']
 })
 export class NavComponent implements OnInit {
-
     model: any = {};
-    uniqueName: String;
     userName: String;
 
     constructor(private authService: AuthenticationService, private alertify: AlertifyService, private router: Router) { }
 
     ngOnInit() {
-      this.userName = this.authService.decodedToken.unique_name;
+      this.setUserName();
     }
 
     login() {
       this.authService.login(this.model).subscribe(
         data => {
+        this.setUserName();
         this.alertify.success('logged in successfully');
       }, error => {
         this.alertify.error(error);
       }, () => {
         this.router.navigate(['/members']);
       });
+    }
+
+    setUserName() {
+      this.userName = this.authService.decodedToken != null ? this.authService.decodedToken.unique_name : ' ';
     }
 
     logout() {
