@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +11,7 @@ using DatingApp.API.Helpers;
 using DatingApp.API.Models;
 using DatingApp.API.Repositories.Dating;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -64,8 +67,57 @@ namespace DatingApp.API.Controllers
             if(currentUserId != user.ID)
                 return Unauthorized();
 
-            var file = photoDto.File;
+            photoDto = UploadingToCloudinary(photoDto);
 
+            if(string.IsNullOrEmpty(photoDto.Url))
+                return this.BadRequest("The Photo could not be uploaded");
+
+            var photo = this.mapper.Map<Photo>(photoDto);
+            photo.User = user;
+            photo.Description = photoDto.Description ?? String.Empty;
+
+            if(!user.Photos.Any(m => m.IsMain))
+                photo.IsMain = true;
+            
+            user.Photos.Add(photo);
+
+            if(!(await this.repository.SaveAll()))
+                return BadRequest("Could not add the photo");
+
+            var photoToReturn = this.mapper.Map<PhotoForReturnDto>(photo);
+
+            return CreatedAtRoute("GetPhoto", new { id = photo.ID}, photoToReturn);
+        }
+
+        [HttpPatch("{id}/setMain")]
+        public async Task<IActionResult> SetMainPhoto(int userId, int id)
+        {
+            if(userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var photoEntity = await this.repository.GetPhoto(id);
+
+            if(photoEntity==null)
+                return NotFound();
+
+            if(photoEntity.IsMain)
+                return BadRequest("This is already the main photo");
+
+            var currentMainPhoto = await this.repository.GetMainPhotoForUser(userId);
+            if(currentMainPhoto!= null)
+                currentMainPhoto.IsMain = false;
+
+            photoEntity.IsMain = true;
+
+            if(!(await this.repository.SaveAll()))
+                return BadRequest("Could not set photo to main");
+
+            return NoContent();
+        }
+
+        private PhotoForCreationDto UploadingToCloudinary(PhotoForCreationDto photoDto)
+        {
+            var file = photoDto.File;
             var uploadResult = new ImageUploadResult();
 
             if(file.Length > 0)
@@ -82,21 +134,7 @@ namespace DatingApp.API.Controllers
 
             photoDto.Url = uploadResult.Uri.ToString();
             photoDto.PublicId = uploadResult.PublicId;
-
-            var photo = this.mapper.Map<Photo>(photoDto);
-            photo.User = user;
-
-            if(!user.Photos.Any(m => m.IsMain))
-                photo.IsMain = true;
-            
-            user.Photos.Add(photo);
-
-            if(!(await this.repository.SaveAll()))
-                return BadRequest("Could not add the photo");
-
-            var photoToReturn = this.mapper.Map<PhotoForReturnDto>(photo);
-
-            return CreatedAtRoute("GetPhoto", new { id = photo.ID}, photoToReturn);
+            return photoDto;
         }
     }
 }
