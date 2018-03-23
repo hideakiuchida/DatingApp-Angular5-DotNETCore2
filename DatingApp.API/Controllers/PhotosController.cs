@@ -115,6 +115,26 @@ namespace DatingApp.API.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePhoto(int userId, int id) 
+        {
+            if(userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var photoEntity = await this.repository.GetPhoto(id);
+
+            if(photoEntity==null)
+                return NotFound();
+
+            if(photoEntity.IsMain)
+                return BadRequest("You cannot delete the main photo");
+
+            if(!await DeletePhotoInCloudinary(photoEntity))
+                return BadRequest("Failed to delete the photo");
+
+            return Ok();
+        }
+
         private PhotoForCreationDto UploadingToCloudinary(PhotoForCreationDto photoDto)
         {
             var file = photoDto.File;
@@ -126,7 +146,8 @@ namespace DatingApp.API.Controllers
                 {
                     var uploadParams = new ImageUploadParams() 
                     {
-                        File = new FileDescription(file.Name, stream)
+                        File = new FileDescription(file.Name, stream),
+                        Transformation = new Transformation().Width(500).Height(500).Crop("fill").Gravity("face")
                     };
                     uploadResult = this.cloudinary.Upload(uploadParams);
                 }     
@@ -135,6 +156,19 @@ namespace DatingApp.API.Controllers
             photoDto.Url = uploadResult.Uri.ToString();
             photoDto.PublicId = uploadResult.PublicId;
             return photoDto;
+        }
+
+        private async Task<bool> DeletePhotoInCloudinary(Photo photoEntity) 
+        {
+            var deleteParams = new DeletionParams(photoEntity.PublicId);
+            var result = this.cloudinary.Destroy(deleteParams);
+
+            if(result.Result != "ok")
+                return false;
+
+            this.repository.Delete(photoEntity);
+
+            return await this.repository.SaveAll();
         }
     }
 }

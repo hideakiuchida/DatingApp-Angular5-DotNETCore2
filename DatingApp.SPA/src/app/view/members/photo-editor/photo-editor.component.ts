@@ -1,10 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Photo } from '../../../models/Photo';
 import { FileUploader } from 'ng2-file-upload';
 import { environment } from '../../../../environments/environment';
 import { AuthenticationService } from '../../../services/authentication/authentication.service';
 import { UserService } from '../../../services/user/user.service';
 import { AlertifyService } from '../../../services/alertify/alertify.service';
+import * as underscore from 'underscore';
 
 @Component({
   selector: 'app-photo-editor',
@@ -16,6 +17,8 @@ export class PhotoEditorComponent implements OnInit {
   uploader: FileUploader;
   hasBaseDropZoneOver = false;
   baseUrl = environment.apiUrl;
+  currentMain: Photo;
+  @Output() getMemberPhotoChange = new EventEmitter<string>();
 
   constructor(private authenticationService: AuthenticationService, private userService: UserService, private alertify: AlertifyService) { }
 
@@ -55,9 +58,23 @@ export class PhotoEditorComponent implements OnInit {
 
   setMainPhoto(photo: Photo) {
     this.userService.setMainPhoto(this.authenticationService.decodedToken.nameid, photo.id).subscribe(() => {
-      console.log('The photo has set correctly');
+      this.currentMain = underscore.findWhere(this.photos, {isMain: true});
+      this.currentMain.isMain = false;
+      photo.isMain = true;
+      this.authenticationService.changeMemberPhoto(photo.url);
+      this.authenticationService.currentUser.photoUrl = photo.url;
+      localStorage.setItem('user', JSON.stringify(this.authenticationService.currentUser));
     }, error => {
       this.alertify.error(error);
     });
+  }
+
+  deletePhoto(photoId: number) {
+    this.alertify.confirm('Are you sure you want to delete this photo', () => {
+      this.userService.deletePhoto(this.authenticationService.decodedToken.nameid, photoId).subscribe(() => {
+        this.photos.splice(underscore.findIndex(this.photos, {id: photoId}), 1);
+        this.alertify.success('Photo has been deleted');
+      })
+    })
   }
 }

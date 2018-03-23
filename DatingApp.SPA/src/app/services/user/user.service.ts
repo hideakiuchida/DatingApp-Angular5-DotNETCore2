@@ -34,6 +34,10 @@ export class UserService {
         return this.authHttp.patch(this.baseUrl + 'users/' + userId + '/photos/' + photoId + '/setMain', {}).catch(this.handleError);
     }
 
+    deletePhoto(userId: number, photoId: number) {
+        return this.authHttp.delete(this.baseUrl + 'users/' + userId + '/photos/' + photoId).catch(this.handleError);
+    }
+
     private handleError(error: any) {
         const applicationError = error.headers.get('Application-Error');
         if (applicationError) {

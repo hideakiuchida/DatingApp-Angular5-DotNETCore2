@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Dtos;
 using DatingApp.API.Models;
@@ -19,9 +20,11 @@ namespace DatingApp.API.Controllers
         private readonly IAuthenticationRepository _repository;
         private readonly IConfiguration _config;
         private readonly Seed seed;
+        private readonly IMapper mapper;
 
-        public AuthenticationController(IAuthenticationRepository repository, IConfiguration config, Seed seed)
+        public AuthenticationController(IAuthenticationRepository repository, IConfiguration config, IMapper mapper, Seed seed)
         {
+            this.mapper = mapper;
             this.seed = seed;
             _config = config;
             _repository = repository;
@@ -52,8 +55,8 @@ namespace DatingApp.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody]UserForLoginDTO userForLoginDTO)
         {
-            var user = await _repository.Login(userForLoginDTO.Username.ToLower(), userForLoginDTO.Password);
-            if (user == null)
+            var userEntity = await _repository.Login(userForLoginDTO.Username.ToLower(), userForLoginDTO.Password);
+            if (userEntity == null)
                 return Unauthorized();
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -62,16 +65,16 @@ namespace DatingApp.API.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.NameIdentifier, userEntity.ID.ToString()),
+                    new Claim(ClaimTypes.Name, userEntity.UserName)
                 }),
                 Expires = DateTime.Now.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-
-            return Ok(new { tokenString });
+            var user= this.mapper.Map<UserForListDto>(userEntity);
+            return Ok(new { tokenString, user });
         }
 
         [HttpGet("seed")]
