@@ -160,11 +160,14 @@ namespace DatingApp.API.Controllers
 
         private async Task<bool> DeletePhotoInCloudinary(Photo photoEntity) 
         {
-            var deleteParams = new DeletionParams(photoEntity.PublicId);
-            var result = this.cloudinary.Destroy(deleteParams);
+            if(photoEntity.PublicId!=null) 
+            {
+                var deleteParams = new DeletionParams(photoEntity.PublicId);
+                var result = this.cloudinary.Destroy(deleteParams);
 
-            if(result.Result != "ok")
-                return false;
+                if(result.Result != "ok")
+                    return false;
+            }
 
             this.repository.Delete(photoEntity);
 
