@@ -21,6 +21,7 @@ export class AuthenticationService {
     constructor(private http: Http) { }
 
     changeMemberPhoto(photoUrl: string) {
+        photoUrl = photoUrl !== null ? photoUrl : '../../assets/user.png';
         this.photoUrl.next(photoUrl);
     }
 
@@ -39,8 +40,8 @@ export class AuthenticationService {
         }).catch(this.handleError);
     }
 
-    register(model: any) {
-        return this.http.post(this.baseUrl + 'register', model, this.requestOptions()).catch(this.handleError);
+    register(user: User) {
+        return this.http.post(this.baseUrl + 'register', user, this.requestOptions()).catch(this.handleError);
     }
 
     loggedIn() {
