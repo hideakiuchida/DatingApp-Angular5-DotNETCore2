@@ -28,7 +28,7 @@ import { MemberEditResolver } from './resolvers/member-edit.resolver.ts';
 import { PreventUnsavedChanges } from './guards/prevent-unsaved-changes.guard.ts';
 import { PhotoEditorComponent } from './view/members/photo-editor/photo-editor.component';
 import { FileUploadModule } from 'ng2-file-upload';
-
+import {TimeAgoPipe} from 'time-ago-pipe';
 
 @NgModule({
   declarations: [
@@ -42,7 +42,8 @@ import { FileUploadModule } from 'ng2-file-upload';
     MemberCardComponent,
     MemberDetailComponent,
     MemberEditComponent,
-    PhotoEditorComponent
+    PhotoEditorComponent,
+    TimeAgoPipe
 ],
   imports: [
     BrowserModule,
